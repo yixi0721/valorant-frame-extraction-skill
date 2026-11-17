@@ -26,6 +26,8 @@ python "SKILL_DIR/scripts/chouzhen.py" render "OUTPUT_DIR/analysis.json" --outpu
 
 新分析要求空目录，避免把旧素材的方案和新素材的缩略图混在一起。渲染失败后保留的分析文件可直接用于重新导出。
 
+用户指定“站定首枪到击杀”的整个中间区间时，按[首枪闪光与精确剪接](first-shot.md)复核并另存方案。此流程复用 `analyze` / `render`，不是新的 CLI 预设；命令行 `--preset` 仍只接受 `natural` / `snappy`。
+
 ## 修改方案
 
 撤销第 2 次击杀的抽帧，另存方案：
@@ -63,13 +65,13 @@ python "SKILL_DIR/scripts/chouzhen.py" render "OUTPUT_DIR/snappy.json" --output 
 | `media.path` | 本次源录像绝对路径 |
 | `kills[].id` | 本次分析中的击杀 ID |
 | `time` | 该击杀记录在 HUD 中出现的时间，单位秒 |
-| `burst_start` | 推测的连续射击起点；无可靠结果时为 null |
-| `safe_start` / `safe_end` | 当前算法允许剪接的区间；null 表示保留原动作 |
+| `burst_start` | 默认由弹药变化推测的连续射击起点；首枪专用方案记录复核后的闪光起点；无可靠结果时为 null |
+| `safe_start` / `safe_end` | 当前方案由算法或逐帧复核确定的可剪区间；null 表示保留原动作 |
 | `cut_points` | 可选择的源帧时间戳，用于精确按帧调整 |
 | `cut_start` / `cut_end` | 当前删去的半开区间 `[start, end)`，单位秒 |
 | `enabled` | 是否应用这次删帧，不影响其他击杀 |
 | `thumbnail` | 本地缩略图路径 |
 
-优先使用 `edit`，让程序检查 ID、帧数和边界。`render` 不重新识别，也不会把编辑过的参数写回原方案。
+在现有边界内调整时优先使用 `edit`，让程序检查 ID、帧数和边界。`render` 不重新识别，也不会把编辑过的参数写回原方案。首枪专用方案已经确认删去整个中间区间时，直接 `render`；再次 `edit --preset` 会按预设上限重设删帧长度。
 
 stdout 是最终结果 JSON，stderr 是进度 JSON 或运行时错误。`check` 缺环境返回 2，处理错误返回 1，取消返回 130；帮助和命令行参数格式错误使用普通 argparse 输出。导出结果包含 `source_duration_seconds`、`output_duration_seconds`、`removed_seconds`，可核对时长变化；首次适配新素材时再按实际需要查看剪接附近画面及音轨。
