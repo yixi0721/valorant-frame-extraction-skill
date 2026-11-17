@@ -26,7 +26,7 @@ python "SKILL_DIR/scripts/chouzhen.py" render "OUTPUT_DIR/analysis.json" --outpu
 
 新分析要求空目录，避免把旧素材的方案和新素材的缩略图混在一起。渲染失败后保留的分析文件可直接用于重新导出。
 
-用户指定“站定首枪到击杀”的整个中间区间时，按[首枪闪光与精确剪接](first-shot.md)复核并另存方案。此流程复用 `analyze` / `render`，不是新的 CLI 预设；命令行 `--preset` 仍只接受 `natural` / `snappy`。
+用户指定“站定首枪到击杀”的中间区间时，按[首枪闪光与精确剪接](first-shot.md)复核并另存方案。要求剪掉开枪前的停步瞄准时，给 `render` 传入 `--aim-cuts cuts.json`，一份明细可为同一击杀保留多段独立切点。格式和命令见[停步瞄准剪接](stationary-aim.md)。`--preset` 的取值为 `natural` 和 `snappy`。
 
 ## 修改方案
 

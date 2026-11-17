@@ -89,14 +89,19 @@ def cut_ranges(analysis: Analysis) -> list[tuple[float, float]]:
 
 
 def keep_ranges(analysis: Analysis) -> list[tuple[float, float]]:
+    return remaining_ranges(analysis.media.duration, cut_ranges(analysis))
+
+
+def remaining_ranges(duration: float, cuts: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    """Return the complement of sorted, disjoint cuts on the source timeline."""
     segments = []
     cursor = 0.0
-    for start, end in cut_ranges(analysis):
+    for start, end in cuts:
         if start > cursor:
             segments.append((cursor, start))
         cursor = end
-    if cursor < analysis.media.duration:
-        segments.append((cursor, analysis.media.duration))
+    if cursor < duration:
+        segments.append((cursor, duration))
     if not segments:
         raise ValueError("剪辑结果为空。")
     return segments

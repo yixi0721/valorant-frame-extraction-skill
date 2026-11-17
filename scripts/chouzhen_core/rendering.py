@@ -13,7 +13,8 @@ from .planning import keep_ranges
 
 
 def render(analysis: Analysis, output: Path, progress: Progress,
-           cancel: Event | None = None, preview: bool = False) -> Path:
+           cancel: Event | None = None, preview: bool = False, *,
+           segments: list[tuple[float, float]] | None = None) -> Path:
     analysis.media.verify_source()
     output = output.resolve()
     if output == Path(analysis.media.path).resolve():
@@ -22,7 +23,8 @@ def render(analysis: Analysis, output: Path, progress: Progress,
     partial = output.with_name(f".{output.stem}-{uuid4().hex[:8]}.partial.mp4")
     graph_path = partial.with_suffix(".filters.txt")
     log_path = output.with_suffix(".ffmpeg.log")
-    segments = keep_ranges(analysis)
+    if segments is None:
+        segments = keep_ranges(analysis)
     expected = sum(end - start for start, end in segments)
     count = len(segments)
     graph = []

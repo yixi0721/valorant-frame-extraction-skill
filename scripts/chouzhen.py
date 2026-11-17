@@ -103,6 +103,8 @@ def parser():
             child.add_argument("--preview", action="store_true", help="输出最高 720p 预览，默认输出原分辨率")
     export = commands.add_parser("render", help="复用分析文件导出 MP4")
     export.add_argument("analysis", type=Path)
+    export.add_argument("--aim-cuts", type=Path, metavar="CUTS.json",
+                        help="按已复核的停步瞄准源帧区间剪接，可为同一次击杀指定多段")
     export.add_argument("--output", "-o", required=True, type=Path)
     export.add_argument("--preview", action="store_true")
     export.add_argument("--overwrite", action="store_true")
@@ -209,8 +211,14 @@ def main(argv=None):
             from chouzhen_core.media import probe
             result = Analysis.load(args.analysis)
             target = output_path(args.output, ".mp4", args.overwrite)
-            render(result, target, progress, cancel, args.preview)
-            payload = summary(result, args.analysis)
+            segments = None
+            if args.aim_cuts is None:
+                payload = summary(result, args.analysis)
+            else:
+                from chouzhen_core.stationary_aim import reviewed_aim
+                segments, payload = reviewed_aim(result, args.aim_cuts, cancel)
+                payload["analysis"] = str(args.analysis.resolve())
+            render(result, target, progress, cancel, args.preview, segments=segments)
             payload["output"] = str(target)
             payload["output_duration_seconds"] = probe(target, cancel).duration
         payload["operation"] = args.command
