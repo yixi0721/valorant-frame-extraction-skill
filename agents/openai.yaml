@@ -1,0 +1,3 @@
+interface:
+  display_name: "无畏契约击杀抽帧"
+  short_description: "本地识别无畏契约第一视角录像中的击杀，自动抽帧并导出视频"
